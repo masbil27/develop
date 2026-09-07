@@ -1,10 +1,12 @@
+import hmac
 import logging
 import os
 import uuid
+from functools import wraps
 from pathlib import Path
 
 from dotenv import load_dotenv
-from flask import Flask, abort, render_template, request, send_file
+from flask import Flask, Response, abort, render_template, request, send_file
 
 load_dotenv()
 
@@ -35,13 +37,43 @@ app = Flask(
 )
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH_MB * 1024 * 1024
 
+APP_USERNAME = os.environ.get("APP_USERNAME", "")
+APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
+
+
+def _auth_enabled() -> bool:
+    return bool(APP_USERNAME and APP_PASSWORD)
+
+
+def _check_credentials(username: str, password: str) -> bool:
+    return hmac.compare_digest(username, APP_USERNAME) and hmac.compare_digest(password, APP_PASSWORD)
+
+
+def requires_auth(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if not _auth_enabled():
+            return view(*args, **kwargs)
+        auth = request.authorization
+        if not auth or not _check_credentials(auth.username or "", auth.password or ""):
+            return Response(
+                "Login diperlukan.",
+                401,
+                {"WWW-Authenticate": 'Basic realm="Transkrip Audio/Video"'},
+            )
+        return view(*args, **kwargs)
+
+    return wrapped
+
 
 @app.route("/")
+@requires_auth
 def index():
     return render_template("index.html")
 
 
 @app.route("/transcribe", methods=["POST"])
+@requires_auth
 def transcribe():
     source = request.form.get("source", "file")
     job_id = uuid.uuid4().hex
@@ -95,6 +127,7 @@ def transcribe():
 
 
 @app.route("/download/<job_id>")
+@requires_auth
 def download(job_id):
     if not job_id.isalnum():
         abort(404)

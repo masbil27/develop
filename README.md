@@ -55,6 +55,7 @@ Buka `http://localhost:5000` di browser.
 | `CHUNK_SECONDS` | Panjang tiap potongan audio sebelum dikirim ke API (default 300 detik / 5 menit) — audio panjang otomatis dipecah |
 | `MAX_CONTENT_LENGTH_MB` | Batas ukuran upload file (default 1024 MB) |
 | `PORT` | Port web server (default 5000) |
+| `APP_USERNAME` / `APP_PASSWORD` | Login (HTTP Basic Auth). Kosongkan dua-duanya untuk pemakaian lokal tanpa login. **Wajib diisi kalau di-deploy online.** |
 
 ## Cara pakai
 
@@ -72,6 +73,50 @@ Buka `http://localhost:5000` di browser.
 Selalu periksa ulang hasil transkrip sebelum dipakai untuk dokumen resmi
 (notulensi, laporan ke donor, dsb.) — transkripsi otomatis tetap bisa keliru,
 terutama untuk istilah teknis, nama orang/lembaga, dan angka.
+
+## Deploy online (Render.com)
+
+Repo ini sudah punya `Dockerfile`, jadi bisa langsung dipakai untuk Web
+Service di Render (atau platform lain yang support Docker seperti Railway,
+Fly.io).
+
+1. Buat akun di https://render.com (kalau belum punya), hubungkan akun
+   GitHub-nya.
+2. Di dashboard Render: **New +** → **Web Service** → pilih repo
+   `masbil27/develop`.
+3. Pastikan **Branch** yang dipilih: `claude/audio-video-transcription-tool-2bv7am`
+   (atau branch tempat kode ini berada setelah di-merge).
+4. **Runtime**: pilih **Docker** (Render otomatis mendeteksi `Dockerfile`).
+5. Di bagian **Environment Variables**, isi minimal:
+   - `TRANSCRIPTION_PROVIDER` = `openrouter`
+   - `OPENROUTER_API_KEY` = kunci baru kamu (jangan yang lama/bocor)
+   - `OPENROUTER_MODEL` = model audio-capable pilihanmu
+   - `APP_USERNAME` = username login
+   - `APP_PASSWORD` = password login
+   - (opsional) `TRANSCRIPTION_LANGUAGE_HINT`, `CHUNK_SECONDS`, dll sesuai
+     tabel konfigurasi di atas
+6. Klik **Deploy**. Setelah build selesai, Render kasih link publik bentuk
+   `https://<nama-service>.onrender.com` — itu link web app-nya. Buka,
+   login pakai `APP_USERNAME`/`APP_PASSWORD` yang tadi diisi.
+
+### Keterbatasan penting untuk deployment online
+
+- **Request timeout**: transkripsi saat ini diproses **sinkron** dalam satu
+  HTTP request (upload → tunggu semua chunk selesai → hasil tampil).
+  Gunicorn di `Dockerfile` sudah diset timeout 30 menit, tapi platform
+  hosting (Render, Railway, dll) biasanya punya batas timeout proxy
+  sendiri di depan aplikasi yang **tidak bisa diubah dari kode ini** — cek
+  dokumentasi/dashboard platform yang dipakai. Kalau rekaman rapat
+  berjam-jam bikin request timeout, kabari saya — solusinya perlu diubah
+  jadi proses background (job queue) + halaman status, bukan sekadar
+  tunggu di satu request.
+- **Penyimpanan sementara**: file upload & hasil transkrip disimpan di
+  disk container. Di Render free/starter tier, disk ini **hilang setiap
+  kali service di-restart/redeploy** — jadi jangan andalkan link `/download`
+  untuk penyimpanan jangka panjang, langsung unduh & simpan hasilnya.
+- **Biaya API**: tiap transkripsi memakai kuota API berbayar (OpenRouter/
+  OpenAI) milik pemilik key. Login (`APP_USERNAME`/`APP_PASSWORD`)
+  membantu membatasi siapa yang bisa memicu pemakaian ini.
 
 ## Catatan penggunaan link YouTube
 
