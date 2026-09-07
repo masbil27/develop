@@ -4,6 +4,10 @@ Web app sederhana untuk mentranskripsi rekaman audio/video (rapat, wawancara,
 kunjungan lapangan, dsb.) menjadi teks, termasuk dari link YouTube (video
 maupun siaran live).
 
+> **Belum pernah pakai terminal/command line?** Ikuti **[PANDUAN_WINDOWS.md](PANDUAN_WINDOWS.md)**
+> — tinggal klik dua kali `Jalankan Aplikasi.bat`, tanpa ketik perintah apa
+> pun. README ini untuk yang sudah biasa pakai terminal / mau deploy online.
+
 ## PENTING: soal API key
 
 Jangan pernah menaruh API key langsung di kode atau commit ke git. Semua key
@@ -33,6 +37,10 @@ pip install -r requirements.txt
 cp .env.example .env
 # lalu edit .env: isi OPENROUTER_API_KEY (atau OPENAI_API_KEY kalau pakai provider openai)
 ```
+
+Alternatif: jalankan `python server.py` langsung tanpa isi `.env` dulu — aplikasi
+akan mengarahkan ke halaman **Pengaturan** di browser untuk isi API key lewat
+form (tersimpan ke `config.json` lokal, juga gitignored).
 
 ## Menjalankan
 
@@ -129,14 +137,18 @@ of Service YouTube untuk konten yang bukan milik sendiri.
 
 ```
 server.py                  # entry point Flask
+Jalankan Aplikasi.bat      # launcher Windows (klik dua kali, tanpa terminal)
+PANDUAN_WINDOWS.md         # panduan non-teknis untuk pemakaian lokal di Windows
+ffmpeg_bin/                # taruh ffmpeg.exe/ffprobe.exe di sini (opsional, alternatif dari PATH sistem)
 app/
   audio.py                 # ekstraksi & pemotongan audio (ffmpeg)
   youtube.py                # unduh audio dari YouTube (yt-dlp)
   transcriber.py            # orkestrasi pipeline transkripsi
+  config_store.py           # baca/tulis config.json (dari halaman Pengaturan)
   providers/
     openrouter.py           # provider via OpenRouter chat completions (audio input)
     openai_provider.py      # provider via OpenAI audio transcriptions API
-  templates/                # halaman HTML
+  templates/                # halaman HTML (termasuk settings.html)
   static/                   # CSS
 ```
 

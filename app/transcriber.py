@@ -5,7 +5,7 @@ import shutil
 import uuid
 from pathlib import Path
 
-from . import audio
+from . import audio, config_store
 from .providers import TranscriptionProvider
 
 logger = logging.getLogger(__name__)
@@ -15,7 +15,8 @@ def transcribe_file(input_path: Path, provider: TranscriptionProvider, work_dir:
     """Transkripsi satu file audio/video lokal menjadi teks penuh."""
     job_dir = work_dir / uuid.uuid4().hex
     job_dir.mkdir(parents=True, exist_ok=True)
-    language_hint = os.environ.get("TRANSCRIPTION_LANGUAGE_HINT", "mixed")
+    config = config_store.load_config()
+    language_hint = config.get("language_hint") or os.environ.get("TRANSCRIPTION_LANGUAGE_HINT", "mixed")
     chunk_seconds = int(os.environ.get("CHUNK_SECONDS", "300"))
 
     try:

@@ -1,8 +1,11 @@
 .env
+config.json
 __pycache__/
 *.pyc
 venv/
 .venv/
 uploads/*
 !uploads/.gitkeep
+ffmpeg_bin/*
+!ffmpeg_bin/.gitkeep
 *.log

@@ -119,6 +119,33 @@ button:hover { background: #1730a6; }
   white-space: pre-wrap;
 }
 
+.notice {
+  background: #eaf7ee;
+  color: #1e7e34;
+  border: 1px solid #bfe6c9;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 16px;
+  font-size: 0.9rem;
+}
+
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  background: white;
+}
+
+.settings-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--primary);
+  text-decoration: none;
+}
+
 textarea.transcript {
   width: 100%;
   min-height: 360px;

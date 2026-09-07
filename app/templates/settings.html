@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Pengaturan</h1>
+      <p>Isi API key sekali di sini. Tersimpan di komputer ini saja (file <code>config.json</code>), tidak dikirim ke mana-mana selain ke provider yang kamu pilih saat transkripsi.</p>
+    </header>
+
+    {% if saved %}
+      <div class="notice">Pengaturan tersimpan.</div>
+    {% endif %}
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <div class="card">
+      <form action="{{ url_for('settings') }}" method="post">
+        <label class="field-label" for="provider">Provider transkripsi</label>
+        <select name="provider" id="provider">
+          <option value="openrouter" {% if config.provider == 'openrouter' %}selected{% endif %}>OpenRouter</option>
+          <option value="openai" {% if config.provider == 'openai' %}selected{% endif %}>OpenAI</option>
+        </select>
+
+        <label class="field-label" for="openrouter_api_key">OpenRouter API Key</label>
+        <input type="password" name="openrouter_api_key" id="openrouter_api_key"
+               value="{{ config.openrouter_api_key }}" placeholder="sk-or-v1-...">
+        <div class="hint">Dari <a href="https://openrouter.ai/keys" target="_blank" rel="noopener">openrouter.ai/keys</a></div>
+
+        <label class="field-label" for="openrouter_model">Model OpenRouter</label>
+        <input type="text" name="openrouter_model" id="openrouter_model" value="{{ config.openrouter_model }}">
+
+        <label class="field-label" for="openai_api_key">OpenAI API Key (opsional, kalau pakai provider OpenAI)</label>
+        <input type="password" name="openai_api_key" id="openai_api_key"
+               value="{{ config.openai_api_key }}" placeholder="sk-...">
+        <div class="hint">Dari <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a></div>
+
+        <label class="field-label" for="language_hint">Bahasa dominan rekaman</label>
+        <select name="language_hint" id="language_hint">
+          <option value="mixed" {% if config.language_hint == 'mixed' %}selected{% endif %}>Campuran Indonesia-Inggris</option>
+          <option value="id" {% if config.language_hint == 'id' %}selected{% endif %}>Bahasa Indonesia saja</option>
+          <option value="en" {% if config.language_hint == 'en' %}selected{% endif %}>Bahasa Inggris saja</option>
+        </select>
+
+        <button type="submit">Simpan Pengaturan</button>
+      </form>
+    </div>
+
+    <p class="hint"><a href="{{ url_for('index') }}">&larr; Kembali ke halaman transkripsi</a></p>
+  </div>
+</body>
+</html>
