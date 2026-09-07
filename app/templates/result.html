@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hasil Transkrip</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Hasil Transkrip</h1>
+      <p>Periksa kembali hasil transkrip di bawah ini sebelum digunakan untuk keperluan resmi.</p>
+    </header>
+
+    <div class="card">
+      <textarea class="transcript" readonly>{{ transcript }}</textarea>
+      <div class="actions">
+        <a class="btn-primary" href="{{ url_for('download', job_id=job_id) }}">Unduh .txt</a>
+        <a class="btn-secondary" href="{{ url_for('index') }}">Transkrip File Lain</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

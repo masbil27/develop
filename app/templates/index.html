@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transkrip Audio/Video</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Transkrip Audio/Video ke Teks</h1>
+      <p>Unggah file audio/video, atau tempel link YouTube (termasuk siaran live) untuk ditranskripsi.</p>
+    </header>
+
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <div class="card">
+      <div class="tabs">
+        <input type="radio" id="tab-file" name="tab" checked onclick="showPanel('file')">
+        <label for="tab-file">Unggah File</label>
+        <input type="radio" id="tab-youtube" name="tab" onclick="showPanel('youtube')">
+        <label for="tab-youtube">Link YouTube</label>
+      </div>
+
+      <form action="{{ url_for('transcribe') }}" method="post" enctype="multipart/form-data">
+        <div id="panel-file" class="panel" style="display:block;">
+          <input type="hidden" name="source" id="source-input" value="file">
+          <label class="field-label" for="media_file">File audio/video</label>
+          <input type="file" name="media_file" id="media_file"
+                 accept=".mp3,.wav,.m4a,.aac,.flac,.ogg,.opus,.mp4,.mov,.mkv,.webm,.avi">
+          <div class="hint">Format: mp3, wav, m4a, aac, flac, ogg, opus, mp4, mov, mkv, webm, avi.</div>
+        </div>
+
+        <div id="panel-youtube" class="panel">
+          <label class="field-label" for="youtube_url">Link YouTube (video atau live)</label>
+          <input type="url" name="youtube_url" id="youtube_url" placeholder="https://www.youtube.com/watch?v=...">
+
+          <label class="field-label" for="max_duration_seconds">Batas durasi rekam untuk siaran live (detik, opsional)</label>
+          <input type="number" name="max_duration_seconds" id="max_duration_seconds" min="1" placeholder="mis. 3600 untuk 1 jam">
+          <div class="hint">Kosongkan untuk video biasa (VOD). Untuk live, isi supaya perekaman otomatis berhenti setelah durasi ini.</div>
+        </div>
+
+        <button type="submit">Mulai Transkripsi</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function showPanel(which) {
+      document.getElementById('panel-file').style.display = which === 'file' ? 'block' : 'none';
+      document.getElementById('panel-youtube').style.display = which === 'youtube' ? 'block' : 'none';
+      document.getElementById('source-input').value = which;
+    }
+  </script>
+</body>
+</html>
